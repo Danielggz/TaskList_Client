@@ -37,26 +37,24 @@ public class Client {
    private static void run() 
    {
         Socket link = null;
-        String message="";
+        String message=null;
+        String response= null;
         try 
         {
-            while(!message.equalsIgnoreCase("STOP")){
-                link = new Socket(host,PORT);
-                //link = new Socket( "192.168.0.59", PORT);
-                BufferedReader in = new BufferedReader(new InputStreamReader(link.getInputStream()));//Step 2.
-                PrintWriter out = new PrintWriter(link.getOutputStream(),true);
+            link = new Socket(host,PORT);
+            BufferedReader in = new BufferedReader(new InputStreamReader(link.getInputStream()));//Step 2.
+            PrintWriter out = new PrintWriter(link.getOutputStream(),true);
 
-                //Set up stream for keyboard entry...
-                BufferedReader userEntry =new BufferedReader(new InputStreamReader(System.in));
-                String response= null;
-
+            //Set up stream for keyboard entry...
+            BufferedReader userEntry =new BufferedReader(new InputStreamReader(System.in));
+            
+            do{
                 System.out.println("Enter message to be sent to server: ");
-                message =  userEntry.readLine();
+                message = userEntry.readLine();
                 out.println(message);
                 response = in.readLine();
                 System.out.println("\nSERVER RESPONSE> " + response);
-            }
-            
+            }while(!message.equalsIgnoreCase("STOP"));
         } 
         catch(IOException e)
         {
