@@ -46,16 +46,13 @@ public class Client {
             link = new Socket(host,PORT);
             BufferedReader in = new BufferedReader(new InputStreamReader(link.getInputStream()));//Step 2.
             PrintWriter out = new PrintWriter(link.getOutputStream(),true);
-
-            //Set up stream for keyboard entry...
             BufferedReader bfReader =new BufferedReader(new InputStreamReader(System.in));
-            
             do{
                 String taskDescription, requestMessage, taskDate;
                 taskDescription = requestMessage = taskDate = "";
-                SimpleDateFormat sdf = null;
-                boolean noAction = false;
-                System.out.println("Enter action to request from server: ADD/LIST/STOP");
+                SimpleDateFormat sdf = null; //date formatter
+                boolean noAction = false; //To check if there is no valid action selected by user
+                System.out.println("\nEnter action to request from server: ADD/LIST/STOP");
                 action = bfReader.readLine();
                 switch(action.toUpperCase()){
                     case "ADD":
