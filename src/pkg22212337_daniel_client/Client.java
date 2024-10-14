@@ -12,6 +12,8 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  * @author Daniel García
@@ -37,8 +39,8 @@ public class Client {
    private static void run() 
    {
         Socket link = null;
-        String message=null;
-        String response= null;
+        String action;
+        String response = null;
         try 
         {
             link = new Socket(host,PORT);
@@ -46,15 +48,65 @@ public class Client {
             PrintWriter out = new PrintWriter(link.getOutputStream(),true);
 
             //Set up stream for keyboard entry...
-            BufferedReader userEntry =new BufferedReader(new InputStreamReader(System.in));
+            BufferedReader bfReader =new BufferedReader(new InputStreamReader(System.in));
             
             do{
-                System.out.println("Enter message to be sent to server: ");
-                message = userEntry.readLine();
-                out.println(message);
-                response = in.readLine();
-                System.out.println("\nSERVER RESPONSE> " + response);
-            }while(!message.equalsIgnoreCase("STOP"));
+                String taskName, taskDescription, requestMessage, taskDate;
+                taskName = taskDescription = requestMessage = taskDate = "";
+                SimpleDateFormat sdf = null;
+                boolean noAction = false;
+                System.out.println("Enter action to request from server: ADD/LIST/STOP");
+                action = bfReader.readLine();
+                switch(action.toUpperCase()){
+                    case "ADD":
+                        System.out.println("<-------NEW TASK------->");
+                        System.out.println("Enter name");
+                        taskName = bfReader.readLine();
+                        System.out.println("Enter description");
+                        taskDescription = bfReader.readLine();
+                        System.out.println("Enter date (dd/mm/yyyy)");
+                        //Format date to SimpleDateFormat to check if its introduced correctly
+                        try{
+                            sdf = new SimpleDateFormat("dd/MM/yyyy");
+                            taskDate = bfReader.readLine();
+                            sdf.parse(taskDate);
+                        }catch(ParseException pe){
+                            System.out.println("Error found." + taskDate + " is not a valid date: " + pe.getMessage());
+                        }
+                        //Construct String to send to server
+                        requestMessage = action + "," + taskName + "," + taskDescription + "," + taskDate;
+                        out.println(requestMessage);
+                        break;
+                    case "LIST":
+                        System.out.println("<-------LIST TASKS------->");
+                        System.out.println("Enter date (dd/mm/yyyy)");
+                        //Format date to SimpleDateFormat to check if its introduced correctly
+                        try{
+                            sdf = new SimpleDateFormat("dd/MM/yyyy");
+                            taskDate = bfReader.readLine();
+                            sdf.parse(taskDate);
+                        }catch(ParseException pe){
+                            System.out.println("Error found." + taskDate + " is not a valid date: " + pe.getMessage());
+                        }
+                        requestMessage = action + "," + taskDate;
+                        out.println(requestMessage);
+                        break;
+                    case "STOP":
+                        out.println("STOP"); //Send just the stop request to end communication
+                        break;
+                    default:
+                        noAction = true;
+                        break;
+                }
+                
+                if(!noAction){
+                    response = in.readLine();
+                    System.out.println("\nSERVER RESPONSE> " + response);
+                }else{
+                    System.out.println("Please introduce a valid action");
+                }
+                
+            }while(!action.equalsIgnoreCase("STOP"));
         } 
         catch(IOException e)
         {
@@ -64,7 +116,7 @@ public class Client {
         {
             try 
             {
-                System.out.println("\n* Closing connection... *");
+                System.out.println("\nClosing connection...");
                 link.close();
             }catch(IOException e)
             {
