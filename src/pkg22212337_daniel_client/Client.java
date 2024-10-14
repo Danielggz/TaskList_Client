@@ -51,8 +51,8 @@ public class Client {
             BufferedReader bfReader =new BufferedReader(new InputStreamReader(System.in));
             
             do{
-                String taskName, taskDescription, requestMessage, taskDate;
-                taskName = taskDescription = requestMessage = taskDate = "";
+                String taskDescription, requestMessage, taskDate;
+                taskDescription = requestMessage = taskDate = "";
                 SimpleDateFormat sdf = null;
                 boolean noAction = false;
                 System.out.println("Enter action to request from server: ADD/LIST/STOP");
@@ -60,21 +60,21 @@ public class Client {
                 switch(action.toUpperCase()){
                     case "ADD":
                         System.out.println("<-------NEW TASK------->");
-                        System.out.println("Enter name");
-                        taskName = bfReader.readLine();
                         System.out.println("Enter description");
                         taskDescription = bfReader.readLine();
                         System.out.println("Enter date (dd/mm/yyyy)");
                         //Format date to SimpleDateFormat to check if its introduced correctly
                         try{
                             sdf = new SimpleDateFormat("dd/MM/yyyy");
+                            sdf.setLenient(false); //For strict parsing
                             taskDate = bfReader.readLine();
                             sdf.parse(taskDate);
                         }catch(ParseException pe){
                             System.out.println("Error found." + taskDate + " is not a valid date: " + pe.getMessage());
+                            continue; //Start the loop again
                         }
                         //Construct String to send to server
-                        requestMessage = action + "," + taskName + "," + taskDescription + "," + taskDate;
+                        requestMessage = action + "," + taskDescription + "," + taskDate;
                         out.println(requestMessage);
                         break;
                     case "LIST":
@@ -83,10 +83,12 @@ public class Client {
                         //Format date to SimpleDateFormat to check if its introduced correctly
                         try{
                             sdf = new SimpleDateFormat("dd/MM/yyyy");
+                            sdf.setLenient(false); //For strict parsing
                             taskDate = bfReader.readLine();
                             sdf.parse(taskDate);
                         }catch(ParseException pe){
                             System.out.println("Error found." + taskDate + " is not a valid date: " + pe.getMessage());
+                            continue; //Start the loop again
                         }
                         requestMessage = action + "," + taskDate;
                         out.println(requestMessage);
