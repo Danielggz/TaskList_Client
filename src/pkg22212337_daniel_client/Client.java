@@ -39,7 +39,7 @@ public class Client {
    private static void run() 
    {
         Socket link = null;
-        String action;
+        int option = 0;
         String response = null;
         try 
         {
@@ -52,10 +52,25 @@ public class Client {
                 taskDescription = requestMessage = taskDate = "";
                 SimpleDateFormat sdf = null; //date formatter
                 boolean noAction = false; //To check if there is no valid action selected by user
-                System.out.println("\nEnter action to request from server: ADD/LIST/STOP");
-                action = bfReader.readLine();
-                switch(action.toUpperCase()){
-                    case "ADD":
+                System.out.println("\nEnter action to request from server: "
+                        + "\n 1. ADD"
+                        + "\n 2. LIST"
+                        + "\n 3. STOP");
+                try{
+                    option = Integer.parseInt(bfReader.readLine());
+                    //Throw custom exception if option is not in range
+                    if(option < 1 || option > 3 ){
+                        throw new IncorrectActionException();
+                    }
+                }catch(NumberFormatException nfe){
+                    System.out.println("Option must be a number: " + nfe.getMessage());
+                    continue;
+                }catch(IncorrectActionException iae){
+                    System.out.println(iae.getMessage());
+                    continue;
+                }
+                switch(option){
+                    case 1:
                         System.out.println("<-------NEW TASK------->");
                         System.out.println("Enter description");
                         taskDescription = bfReader.readLine();
@@ -67,14 +82,14 @@ public class Client {
                             taskDate = bfReader.readLine();
                             sdf.parse(taskDate);
                         }catch(ParseException pe){
-                            System.out.println("Error found." + taskDate + " is not a valid date: " + pe.getMessage());
+                            System.out.println("Error found. " + taskDate + " is not a valid date. Date must be in dd/mm/yyyy " + pe.getMessage());
                             continue; //Start the loop again
                         }
                         //Construct String to send to server
-                        requestMessage = action + "," + taskDescription + "," + taskDate;
+                        requestMessage =  "ADD," + taskDescription + "," + taskDate;
                         out.println(requestMessage);
                         break;
-                    case "LIST":
+                    case 2:
                         System.out.println("<-------LIST TASKS------->");
                         System.out.println("Enter date (dd/mm/yyyy)");
                         //Format date to SimpleDateFormat to check if its introduced correctly
@@ -84,28 +99,24 @@ public class Client {
                             taskDate = bfReader.readLine();
                             sdf.parse(taskDate);
                         }catch(ParseException pe){
-                            System.out.println("Error found." + taskDate + " is not a valid date: " + pe.getMessage());
+                            System.out.println("Error found. " + taskDate + " is not a valid date. Date must be in dd/mm/yyyy " + pe.getMessage());
                             continue; //Start the loop again
                         }
-                        requestMessage = action + "," + taskDate;
+                        requestMessage = "LIST," + taskDate;
                         out.println(requestMessage);
                         break;
-                    case "STOP":
+                    case 3:
                         out.println("STOP"); //Send just the stop request to end communication
                         break;
                     default:
                         noAction = true;
                         break;
                 }
-                
                 if(!noAction){
                     response = in.readLine();
                     System.out.println("\nSERVER RESPONSE> " + response);
-                }else{
-                    System.out.println("Please introduce a valid action");
                 }
-                
-            }while(!action.equalsIgnoreCase("STOP"));
+            }while(option != 3);
         } 
         catch(IOException e)
         {
@@ -115,7 +126,7 @@ public class Client {
         {
             try 
             {
-                System.out.println("\nClosing connection...");
+                System.out.println("Closing connection...");
                 link.close();
             }catch(IOException e)
             {
