@@ -44,7 +44,7 @@ public class Client {
         try 
         {
             link = new Socket(host,PORT);
-            BufferedReader in = new BufferedReader(new InputStreamReader(link.getInputStream()));//Step 2.
+            BufferedReader in = new BufferedReader(new InputStreamReader(link.getInputStream()));
             PrintWriter out = new PrintWriter(link.getOutputStream(),true);
             BufferedReader bfReader =new BufferedReader(new InputStreamReader(System.in));
             do{
@@ -108,14 +108,9 @@ public class Client {
                     case 3:
                         out.println("STOP"); //Send just the stop request to end communication
                         break;
-                    default:
-                        noAction = true;
-                        break;
                 }
-                if(!noAction){
-                    response = in.readLine();
-                    System.out.println("\nSERVER RESPONSE> " + response);
-                }
+                response = in.readLine();
+                System.out.println("\nSERVER RESPONSE> " + response);
             }while(option != 3);
         } 
         catch(IOException e)
