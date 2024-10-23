@@ -40,7 +40,7 @@ public class Client {
    {
         Socket link = null;
         int option = 0;
-        String response = null;
+        String response;
         try 
         {
             link = new Socket(host,PORT);
@@ -49,9 +49,8 @@ public class Client {
             BufferedReader bfReader =new BufferedReader(new InputStreamReader(System.in));
             do{
                 String taskDescription, requestMessage, taskDate;
-                taskDescription = requestMessage = taskDate = "";
-                SimpleDateFormat sdf = null; //date formatter
-                boolean noAction = false; //To check if there is no valid action selected by user
+                taskDescription = taskDate = "";
+                SimpleDateFormat sdf; //date formatter
                 System.out.println("\nEnter action to request from server: "
                         + "\n 1. ADD"
                         + "\n 2. LIST"
@@ -60,7 +59,7 @@ public class Client {
                     option = Integer.parseInt(bfReader.readLine());
                     //Throw custom exception if option is not in range
                     if(option < 1 || option > 3 ){
-                        throw new IncorrectActionException();
+                        throw new IncorrectActionException("Please only select 1 for Add, 2 for List or 3 to Stop");
                     }
                 }catch(NumberFormatException nfe){
                     System.out.println("Option must be a number: " + nfe.getMessage());
@@ -72,35 +71,50 @@ public class Client {
                 switch(option){
                     case 1:
                         System.out.println("<-------NEW TASK------->");
-                        System.out.println("Enter description");
-                        taskDescription = bfReader.readLine();
-                        System.out.println("Enter date (dd/mm/yyyy)");
-                        //Format date to SimpleDateFormat to check if its introduced correctly
-                        try{
-                            sdf = new SimpleDateFormat("dd/MM/yyyy");
-                            sdf.setLenient(false); //For strict parsing
-                            taskDate = bfReader.readLine();
-                            sdf.parse(taskDate);
-                        }catch(ParseException pe){
-                            System.out.println("Error found. " + taskDate + " is not a valid date. Date must be in dd/mm/yyyy " + pe.getMessage());
-                            continue; //Start the loop again
+                        //Loop while description is not correctly introduced by user
+                        while(taskDescription.equals("")){
+                            System.out.println("Enter description");
+                            try{
+                                taskDescription = bfReader.readLine();
+                                if(taskDescription.equals("")){
+                                    throw new IncorrectActionException("Description is a required field.");
+                                }
+                            }catch(IncorrectActionException iae){
+                                System.out.println(iae.getMessage());
+                            }
                         }
+                        while(taskDate.equals("")){
+                            System.out.println("Enter date (dd/mm/yyyy)");
+                            //Format date to SimpleDateFormat to check if its introduced correctly
+                            try{
+                                sdf = new SimpleDateFormat("dd/MM/yyyy");
+                                sdf.setLenient(false); //For strict parsing
+                                taskDate = bfReader.readLine();
+                                sdf.parse(taskDate);
+                            }catch(ParseException pe){
+                                System.out.println("Error found. " + taskDate + " is not a valid date. Date must be in dd/mm/yyyy ");
+                                taskDate = ""; //Date is incorrect so its set to blank to continue loop
+                            }
+                        }
+                        
                         //Construct String to send to server
                         requestMessage =  "ADD," + taskDescription + "," + taskDate;
                         out.println(requestMessage);
                         break;
                     case 2:
                         System.out.println("<-------LIST TASKS------->");
-                        System.out.println("Enter date (dd/mm/yyyy)");
-                        //Format date to SimpleDateFormat to check if its introduced correctly
-                        try{
-                            sdf = new SimpleDateFormat("dd/MM/yyyy");
-                            sdf.setLenient(false); //For strict parsing
-                            taskDate = bfReader.readLine();
-                            sdf.parse(taskDate);
-                        }catch(ParseException pe){
-                            System.out.println("Error found. " + taskDate + " is not a valid date. Date must be in dd/mm/yyyy " + pe.getMessage());
-                            continue; //Start the loop again
+                        while(taskDate.equals("")){
+                            System.out.println("Enter date (dd/mm/yyyy)");
+                            //Format date to SimpleDateFormat to check if its introduced correctly
+                            try{
+                                sdf = new SimpleDateFormat("dd/MM/yyyy");
+                                sdf.setLenient(false); //For strict parsing
+                                taskDate = bfReader.readLine();
+                                sdf.parse(taskDate);
+                            }catch(ParseException pe){
+                                System.out.println("Error found. " + taskDate + " is not a valid date. Date must be in dd/mm/yyyy ");
+                                taskDate = ""; //Date is incorrect so its set to blank to continue loop
+                            }
                         }
                         requestMessage = "LIST," + taskDate;
                         out.println(requestMessage);
