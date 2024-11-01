@@ -51,10 +51,10 @@ public class Client {
                 String taskDescription, requestMessage, taskDate;
                 taskDescription = taskDate = "";
                 SimpleDateFormat sdf; //date formatter
-                System.out.println("\nEnter action to request from server: "
-                        + "\n 1. ADD"
-                        + "\n 2. LIST"
-                        + "\n 3. STOP");
+                System.out.println("\n<----NEW HOPES CHARITY ASSOCIATION----> \nEnter action number: "
+                        + "\n 1 - ADD"
+                        + "\n 2 - LIST"
+                        + "\n 3 - STOP");
                 try{
                     option = Integer.parseInt(bfReader.readLine());
                     //Throw custom exception if option is not in range
@@ -143,5 +143,5 @@ public class Client {
                 System.exit(1);
             }
         }
-    } // finish run method
+    }
 }
